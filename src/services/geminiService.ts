@@ -7,7 +7,7 @@ export interface ChatMessage {
 }
 
 // Inicialización corregida para el entorno de producción
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getAresResponse = async (history: ChatMessage[], user: UserProfile): Promise<string> => {
   const isFrancisco = user.role === UserRole.VP;

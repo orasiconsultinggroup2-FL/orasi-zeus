@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { getAresResponse, ChatMessage } from '../services/geminiService';
 import { UserProfile, UserRole } from '../types';
@@ -22,9 +21,10 @@ export const SupportAgent: React.FC<{ user: UserProfile }> = ({ user }) => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
+  // Fix: Explicitly type the initial message array to resolve TypeScript 'role' string mismatch error.
   const handleClearHistory = () => {
     if (window.confirm("¿Confirmar limpieza de memoria de ARES?")) {
-      const initial = [{role: 'ares', text: `Memoria reseteada. Operador ${user.name}, ¿cuál es el nuevo objetivo?`}];
+      const initial: {role: 'ares' | 'user', text: string}[] = [{role: 'ares', text: `Memoria reseteada. Operador ${user.name}, ¿cuál es el nuevo objetivo?`}];
       setMessages(initial);
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -41,7 +41,7 @@ export const SupportAgent: React.FC<{ user: UserProfile }> = ({ user }) => {
     setIsTyping(true);
 
     const apiHistory: ChatMessage[] = newMessages.map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
+      role: m.role === 'user' ? 'user' : 'ares',
       parts: [{ text: m.text }]
     }));
 
