@@ -41,8 +41,8 @@ export const SupportAgent: React.FC<{ user: UserProfile }> = ({ user }) => {
     setIsTyping(true);
 
     const apiHistory: ChatMessage[] = newMessages.map(m => ({
-      role: m.role === 'user' ? 'user' : 'ares',
-      parts: [{ text: m.text }]
+      role: (m.role === 'user' ? 'user' : 'ares') as 'user' | 'ares',
+
     }));
 
     const response = await getAresResponse(apiHistory, user);
