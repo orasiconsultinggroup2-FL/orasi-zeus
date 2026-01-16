@@ -1,0 +1,10 @@
+{
+  "name": "CCE Centro de Comando Élite",
+  "description": "Tablero de gestión estratégica de alto rendimiento con IA de ORASI Lab. Optimizado para el plan piloto de 45 días.",
+  "version": "4.6.0",
+  "author": "ORASI Lab Intelligence",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone"
+  ]
+}
