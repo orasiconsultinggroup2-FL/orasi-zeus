@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { getAresResponse } from '../services/geminiService';
-import { UserProfile } from '../types';
+import { UserProfile } from '../../types';
+
 
 const STORAGE_KEY = 'zeus_ares_history';
 
