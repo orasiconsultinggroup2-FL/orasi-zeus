@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, Type, GenerateContentResponse } from "@google/generative-ai";
 import { UserProfile, UserRole, ScanResult } from "../types";
 
 export interface ChatMessage {
