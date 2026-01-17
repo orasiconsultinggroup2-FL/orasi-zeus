@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getAresResponse, ChatMessage } from '../services/geminiService';
-import { UserProfile, UserRole } from '../types';
+import { getAresResponse } from '../services/geminiService';
+import { UserProfile } from '../types';
 
 const STORAGE_KEY = 'zeus_ares_history';
 
@@ -40,14 +40,18 @@ export const SupportAgent: React.FC<{ user: UserProfile }> = ({ user }) => {
     setInput('');
     setIsTyping(true);
 
-    const apiHistory: ChatMessage[] = newMessages.map(m => ({
-      role: (m.role === 'user' ? 'user' : 'ares') as 'user' | 'ares',
-
-    }));
+    const apiHistory = newMessages.map(m => ({
+  role: m.role === 'user' ? 'user' : 'model',
+  parts: [{ text: m.text }]
+}));
 
     const response = await getAresResponse(apiHistory, user);
     
-    setMessages(prev => [...prev, { role: 'ares', text: response }]);
+    setMessages(prev => [
+  ...prev,
+  { role: 'ares', text: response }
+]);
+
     setIsTyping(false);
   };
 
