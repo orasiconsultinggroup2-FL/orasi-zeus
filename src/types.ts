@@ -7,13 +7,22 @@ export enum UserRole {
 export interface UserProfile {
   name: string;
   role: UserRole;
+  avatar?: string;
 }
 
 export interface ScanResult {
   id: string;
   name: string;
-  type: string;
+  type: 'EDS' | 'COMPETENCIA' | 'B2B' | 'TERRENO';
   value: string;
   dist: string;
   term: string;
+  status?: 'active' | 'pending' | 'closed';
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  objective: string;
+  status: 'active' | 'completed' | 'failed';
 }
