@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UserProfile, UserRole, ScanResult } from "../types";
 
 export interface ChatMessage {
@@ -6,8 +6,9 @@ export interface ChatMessage {
   parts: { text: string }[];
 }
 
-// Inicialización corregida para el entorno de producción
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// CORRECCIÓN: El nombre de la clase es GoogleGenerativeAI, no GoogleGenAI
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || "");
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export const getAresResponse = async (history: ChatMessage[], user: UserProfile): Promise<string> => {
   const isFrancisco = user.role === UserRole.VP;
@@ -21,18 +22,19 @@ export const getAresResponse = async (history: ChatMessage[], user: UserProfile)
   `;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: history.map(h => ({ 
-        role: h.role === 'user' ? 'user' : 'model', 
-        parts: h.parts 
+    const chat = model.startChat({
+      history: history.map(h => ({
+        role: h.role,
+        parts: h.parts,
       })),
-      config: { 
-        systemInstruction,
-        temperature: 0.7
-      }
+      generationConfig: {
+        maxOutputTokens: 1000,
+      },
     });
-    return response.text || "Comando recibido. Sin respuesta del núcleo.";
+
+    const result = await chat.sendMessage(systemInstruction);
+    const response = await result.response;
+    return response.text();
   } catch (error) {
     console.error("ARES API Error:", error);
     return "Error de enlace táctico. Reintente en un momento.";
@@ -41,30 +43,11 @@ export const getAresResponse = async (history: ChatMessage[], user: UserProfile)
 
 export const generateRealisticLeads = async (context: string): Promise<ScanResult[]> => {
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `Genera una lista de 5 objetivos de negocio realistas (estaciones de servicio, flotas o terrenos) en Medellín o Colombia. Contexto: "${context}".`,
-      config: {
-        temperature: 0.7,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              id: { type: Type.STRING },
-              name: { type: Type.STRING },
-              type: { type: Type.STRING },
-              value: { type: Type.STRING },
-              dist: { type: Type.STRING },
-              term: { type: Type.STRING }
-            },
-            required: ["id", "name", "type", "value", "dist", "term"]
-          }
-        }
-      }
-    });
-    return JSON.parse(response.text || '[]');
+    const prompt = `Genera una lista de 5 objetivos de negocio realistas (estaciones de servicio, flotas o terrenos) en Medellín o Colombia. Contexto: "${context}". Responde solo con un array JSON puro.`;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    return JSON.parse(text.replace(/```json|```/g, ""));
   } catch (e) {
     return [
       { id: 'C1', name: 'EDS Primax El Poblado', type: 'COMPETENCIA', value: '$2.8M', dist: '0.4km', term: '2025-08-15' },
@@ -75,12 +58,9 @@ export const generateRealisticLeads = async (context: string): Promise<ScanResul
 
 export const getAIInsights = async (prompt: string): Promise<string> => {
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: { temperature: 0.5 }
-    });
-    return response.text || "Evaluación finalizada.";
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
   } catch (e) {
     return "No se pudo generar el análisis.";
   }
