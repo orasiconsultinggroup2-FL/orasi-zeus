@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Component, ErrorInfo, ReactNode } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { AppRoute, PipelineCard, KanbanColumn, UserRole, Offer, ScanResult, UserProfile } from './types';
+import { AppRoute, PipelineCard, KanbanColumn, UserRole, Offer, ScanResult, UserProfile } from './types.ts';
 import Home from './pages/Home';
 import Pipeline from './pages/Pipeline';
 import Radar from './pages/Radar';
