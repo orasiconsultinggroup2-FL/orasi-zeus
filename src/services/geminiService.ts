@@ -1,10 +1,9 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { UserProfile, UserRole, ScanResult } from "../types";
 
 export interface ChatMessage {
   role: 'user' | 'model';
   parts: { text: string }[];
-}
 
 // Inicialización corregida para el entorno de producción
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
