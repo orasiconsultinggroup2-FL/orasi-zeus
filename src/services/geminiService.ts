@@ -6,7 +6,7 @@ export interface ChatMessage {
   parts: { text: string }[];
 }
 
-// CORRECCIÓN: El nombre de la clase es GoogleGenerativeAI, no GoogleGenAI
+// CORRECCIÓN: Uso de GoogleGenerativeAI y variables de entorno para Vite
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || "");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -15,10 +15,10 @@ export const getAresResponse = async (history: ChatMessage[], user: UserProfile)
   const systemInstruction = `
     Eres ARES, el Asistente de Respuesta Estratégica del ZEUS CCE.
     Operador actual: ${user.name} (${user.role}).
-    Ubicación Central: Medellín, Colombia (Valle de Aburrá).
+    Ubicación Central: Medellín, Colombia.
     ${isFrancisco ? "AVISO: Francisco Anduaga (VP). Acceso ejecutivo total." : "Asiste al operador en tareas tácticas."}
-    TONO: Militar, ultra-profesional, ejecutivo, directo.
-    Responde siempre en español. No menciones lugares fuera de Colombia.
+    TONO: Militar, profesional, ejecutivo, directo.
+    Responde siempre en español.
   `;
 
   try {
@@ -27,9 +27,6 @@ export const getAresResponse = async (history: ChatMessage[], user: UserProfile)
         role: h.role,
         parts: h.parts,
       })),
-      generationConfig: {
-        maxOutputTokens: 1000,
-      },
     });
 
     const result = await chat.sendMessage(systemInstruction);
@@ -43,15 +40,13 @@ export const getAresResponse = async (history: ChatMessage[], user: UserProfile)
 
 export const generateRealisticLeads = async (context: string): Promise<ScanResult[]> => {
   try {
-    const prompt = `Genera una lista de 5 objetivos de negocio realistas (estaciones de servicio, flotas o terrenos) en Medellín o Colombia. Contexto: "${context}". Responde solo con un array JSON puro.`;
+    const prompt = `Genera un JSON con 5 objetivos de negocio en Medellín. Contexto: "${context}".`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
-    return JSON.parse(text.replace(/```json|```/g, ""));
+    return JSON.parse(response.text().replace(/```json|```/g, ""));
   } catch (e) {
     return [
-      { id: 'C1', name: 'EDS Primax El Poblado', type: 'COMPETENCIA', value: '$2.8M', dist: '0.4km', term: '2025-08-15' },
-      { id: 'C2', name: 'Logística Envigado Sur', type: 'B2B', value: '$950k', dist: '1.8km', term: '2024-12-10' }
+      { id: 'C1', name: 'EDS Primax El Poblado', type: 'COMPETENCIA', value: '$2.8M', dist: '0.4km', term: '2025-08-15' }
     ];
   }
 };
